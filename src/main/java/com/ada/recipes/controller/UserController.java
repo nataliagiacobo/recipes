@@ -41,9 +41,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> saveUser(
-            @Valid @RequestBody UserRequest userDTO
-    ) throws Exception {
+    public ResponseEntity<UserResponse> saveUser(@Valid @RequestBody UserRequest userDTO) throws Exception {
         UserResponse user =  userService.saveUser (userDTO);
         return ResponseEntity.created(URI.create("/user/"+user.getId())).body(user);
     }
@@ -53,13 +51,8 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-//    @GetMapping("/email/{email}")
-//    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email){
-//        return  ResponseEntity.ok(userService.getUserByEmail(email));
-//    }
-
     @GetMapping("/name/{name}")
-    public ResponseEntity<List<UserResponse>> getAllUserByName(@PathVariable String name, @PathVariable Integer id){
+    public ResponseEntity<List<UserResponse>> getAllUserByName(@PathVariable String name){
         return ResponseEntity.ok(userService.getAllByName(name));
     }
 
