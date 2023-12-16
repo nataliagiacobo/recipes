@@ -46,4 +46,10 @@ public class ControllerAdvice {
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
     public String handler(NoSuchElementException exception) { return exception.getMessage(); }
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handler(IllegalArgumentException exception){
+        return exception.getMessage();
+    }
 }

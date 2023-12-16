@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class MeasuringUnitService {
     @Autowired
@@ -23,12 +25,15 @@ public class MeasuringUnitService {
     }
 
     public MeasuringUnitResponse saveMeasuringUnit(MeasuringUnitRequest measuringUnitRequest){
+        if(repository.findByDescriptionAndAbbreviation(measuringUnitRequest.getDescription(), measuringUnitRequest.getAbbreviation()).isPresent())
+            throw new IllegalArgumentException("Unidade de medida " + measuringUnitRequest.getDescription() + "(" + measuringUnitRequest.getAbbreviation() + ") já está cadastrada!");
         MeasuringUnit measuringUnit = MeasuringUnitConvert.toEntity(measuringUnitRequest);
         MeasuringUnit measuringUnitEntity = repository.save(measuringUnit);
         return MeasuringUnitConvert.toResponse(measuringUnitEntity);
     }
 
     public MeasuringUnitResponse getMeasuringUnitById(Integer id){
-        return MeasuringUnitConvert.toResponse(repository.findById(id).orElseThrow());
+        return MeasuringUnitConvert.toResponse(repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Unidade de medida não encontrada")));
     }
 }

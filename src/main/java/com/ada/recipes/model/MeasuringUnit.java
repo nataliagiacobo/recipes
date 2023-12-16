@@ -1,6 +1,7 @@
 package com.ada.recipes.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "measures")
 public class MeasuringUnit {
     @Id
@@ -20,9 +22,4 @@ public class MeasuringUnit {
 
     @Column(nullable = false)
     private String abbreviation;
-
-    public MeasuringUnit(String description, String abbreviation){
-        this.description = description;
-        this.abbreviation = abbreviation;
-    }
 }
