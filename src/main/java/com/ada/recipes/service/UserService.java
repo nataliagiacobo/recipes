@@ -2,6 +2,7 @@ package com.ada.recipes.service;
 
 import com.ada.recipes.controller.dto.UserRequest;
 import com.ada.recipes.controller.dto.UserResponse;
+import com.ada.recipes.controller.exception.PasswordValidationExeption;
 import com.ada.recipes.model.User;
 import com.ada.recipes.repository.UserRepository;
 import com.ada.recipes.utils.UserConvert;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @Service
@@ -33,7 +35,7 @@ public class UserService {
     public UserResponse saveUser(UserRequest userDTO) throws Exception {
         User user = UserConvert.toEntity(userDTO);
         if (!Validator.passwordValidate(userDTO.getPassword()))
-            throw new Exception("Senha não preenche requisitos");
+            throw new PasswordValidationExeption("Senha não preenche requisitos");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
         User userEntity = userRepository.save(user);
@@ -41,7 +43,8 @@ public class UserService {
     }
 
     public UserResponse getUserById(Integer id){
-        return UserConvert.toResponse(userRepository.findById(id).orElseThrow());
+        return UserConvert.toResponse(userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado")));
     }
 
     public List<UserResponse> getAllByName(String name){
@@ -49,7 +52,8 @@ public class UserService {
     }
 
     public void deleteUser(Integer id){
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
         user.setActive(false);
         userRepository.save(user);
     }

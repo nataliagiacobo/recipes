@@ -1,5 +1,6 @@
 package com.ada.recipes.controller.configuration;
 
+import com.ada.recipes.controller.exception.PasswordValidationExeption;
 import com.ada.recipes.controller.exception.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ControllerAdvice {
@@ -34,4 +36,14 @@ public class ControllerAdvice {
 
         return errors;
     }
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PasswordValidationExeption.class)
+    public String handler(PasswordValidationExeption exception){
+        return exception.getDescription();
+    }
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoSuchElementException.class)
+    public String handler(NoSuchElementException exception) { return exception.getMessage(); }
 }
