@@ -5,7 +5,6 @@ import com.ada.recipes.model.*;
 import com.ada.recipes.repository.*;
 import com.ada.recipes.utils.RecipeConvert;
 import com.ada.recipes.utils.RecipeItemConvert;
-import com.ada.recipes.utils.UserConvert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @Service
@@ -36,15 +36,24 @@ public class RecipeService {
         return saveRecipe(recipeRequest, null);
     }
     public RecipeResponse saveRecipe(RecipeRequest recipeRequest, Integer id){
-        User user = userRepository.findById(recipeRequest.getUserId()).get();
-        RecipeCategory category = categoryRepository.findById(recipeRequest.getRecipeCategoryId()).get();
+        User user = userRepository.findById(recipeRequest.getUserId())
+            .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+
+        RecipeCategory category = categoryRepository.findById(recipeRequest.getRecipeCategoryId())
+            .orElseThrow(() -> new NoSuchElementException("Categoria de receita não encontrada"));
+
         List<RecipeItem> recipeItemList = new ArrayList<>();
+
         for (RecipeItemRequest itemRequest : recipeRequest.getItems()){
-            recipeItemList.add(RecipeItemConvert.toEntity(
-                    itemRequest,
-                    ingredientRepository.findById(itemRequest.getIngredientId()).get(),
-                    measuringUnitRepository.findById(itemRequest.getMeasuringUnitId()).get()));
+            Ingredient ingredient = ingredientRepository.findById(itemRequest.getIngredientId())
+                    .orElseThrow(() -> new NoSuchElementException("Ingrediente não encontrado"));
+            MeasuringUnit measuringUnit = measuringUnitRepository.findById(itemRequest.getMeasuringUnitId())
+                    .orElseThrow(() -> new NoSuchElementException("Unidade de medida não encontrada"));
+            RecipeItem recipeItem = RecipeItemConvert.toEntity(itemRequest, ingredient, measuringUnit);
+
+            recipeItemList.add(recipeItem);
         }
+
         Recipe recipe = RecipeConvert.toEntity(recipeRequest, user, category, recipeItemList);
         recipe.setId(id);
         recipe.setActive(true);
@@ -53,6 +62,7 @@ public class RecipeService {
         for (RecipeItem item : recipe.getItems()){
             item.setRecipe(recipe);
         }
+
         return RecipeConvert.toResponse(recipeRepository.save(recipe));
     }
 
@@ -68,7 +78,8 @@ public class RecipeService {
 
     public Page<RecipeResponse> getRecipeByCategory(Integer id, int page, int size, String direction){
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.fromString(direction), "description");
-        RecipeCategory category = categoryRepository.findById(id).get();
+        RecipeCategory category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Categoria de receita não encontrada"));
         Page<Recipe> recipes = recipeRepository.findAllByCategory(category, pageRequest);
         return RecipeConvert.toResponsePage(recipes);
     }
