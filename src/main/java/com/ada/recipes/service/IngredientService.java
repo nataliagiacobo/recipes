@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class IngredientService {
 
@@ -24,13 +26,16 @@ public class IngredientService {
     }
 
     public IngredientResponse saveIngredient(IngredientRequest ingredientRequest){
+        if(repository.findByDescriptionIgnoreCase(ingredientRequest.getDescription()).isPresent())
+            throw new IllegalArgumentException("Ingrediente " + ingredientRequest.getDescription() + " já está cadastrado!");
         Ingredient ingredient = IngredientConvert.toEntity(ingredientRequest);
         Ingredient ingredientEntity = repository.save(ingredient);
         return IngredientConvert.toResponse(ingredientEntity);
     }
 
     public IngredientResponse getIngredientById(Integer id){
-        return IngredientConvert.toResponse(repository.findById(id).orElseThrow());
+        return IngredientConvert.toResponse(repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Ingrediente não encontrado")));
     }
 
 }

@@ -4,7 +4,6 @@ import com.ada.recipes.controller.dto.UserRequest;
 import com.ada.recipes.controller.dto.UserResponse;
 import com.ada.recipes.model.User;
 import com.ada.recipes.repository.UserRepository;
-import com.ada.recipes.utils.UserConvert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,7 +67,6 @@ class UserServiceTest {
         assertNotNull(capturedUser);
         assertTrue(capturedUser.getActive());
     }
-
     @Test
     public void search_existing_user_should_return_user() {
         User user = new User();
