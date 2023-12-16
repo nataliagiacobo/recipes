@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class RecipeCategoryService {
 
@@ -24,13 +26,16 @@ public class RecipeCategoryService {
     }
 
     public RecipeCategoryResponse saveRecipeCategory(RecipeCategoryRequest categoryRequest){
+        if(repository.findByDescriptionIgnoreCase(categoryRequest.getDescription()).isPresent())
+            throw new IllegalArgumentException("Categoria " + categoryRequest.getDescription() + "já está cadastrada!");
         RecipeCategory category = RecipeCategoryConvert.toEntity(categoryRequest);
         RecipeCategory categoryEntity = repository.save(category);
         return RecipeCategoryConvert.toResponse(categoryEntity);
     }
 
     public RecipeCategoryResponse getRecipeCategoryById(Integer id){
-        return RecipeCategoryConvert.toResponse(repository.findById(id).orElseThrow());
+        return RecipeCategoryConvert.toResponse(repository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Categoria de receita não encontrada")));
     }
 
 }
