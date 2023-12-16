@@ -1,5 +1,6 @@
 package com.ada.recipes.controller.configuration;
 
+import com.ada.recipes.controller.exception.InvalidRecipeItemsListExeption;
 import com.ada.recipes.controller.exception.PasswordValidationExeption;
 import com.ada.recipes.controller.exception.ValidationError;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +52,11 @@ public class ControllerAdvice {
     @ExceptionHandler(IllegalArgumentException.class)
     public String handler(IllegalArgumentException exception){
         return exception.getMessage();
+    }
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidRecipeItemsListExeption.class)
+    public String handler(InvalidRecipeItemsListExeption exception){
+        return exception.getDescription();
     }
 }

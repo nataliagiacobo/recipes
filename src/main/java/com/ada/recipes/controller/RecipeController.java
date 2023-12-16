@@ -2,6 +2,7 @@ package com.ada.recipes.controller;
 
 import com.ada.recipes.controller.dto.RecipeRequest;
 import com.ada.recipes.controller.dto.RecipeResponse;
+import com.ada.recipes.controller.exception.InvalidRecipeItemsListExeption;
 import com.ada.recipes.service.RecipeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class RecipeController {
     public ResponseEntity<RecipeResponse> updateRecipe(
             @PathVariable Integer id,
             @RequestBody RecipeRequest recipeRequest
-    ){
+    ) throws InvalidRecipeItemsListExeption {
         return ResponseEntity.ok(recipeService.saveRecipe(recipeRequest, id));
     }
 

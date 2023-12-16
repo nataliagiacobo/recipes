@@ -56,7 +56,6 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists()
         );
     }
-
     @Test
     public void should_not_be_able_to_register_user_without_name() throws Exception {
         mockMvc.perform(

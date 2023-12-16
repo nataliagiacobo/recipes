@@ -9,8 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -62,5 +67,25 @@ public class MeasuringUnitServiceTest {
         Assertions.assertThrows(NoSuchElementException.class,
                 () -> service.getMeasuringUnitById(1)
         );
+    }
+
+    @Test
+    public void list_of_units_should_return_with_all_items(){
+        int page = 0;
+        int size = 10;
+        String direction = "ASC";
+
+        List<MeasuringUnit> list = new ArrayList<>();
+        list.add(new MeasuringUnit(1, "grama", "g"));
+        list.add(new MeasuringUnit(2, "litro", "l"));
+
+        Page<MeasuringUnit> unitPage = new PageImpl<>(list);
+
+        when(repository.findAll(any(Pageable.class))).thenReturn(unitPage);
+
+        Page<MeasuringUnitResponse> result = service.getMeasuringUnits(page, size, direction);
+
+        assertNotNull(result);
+        assertEquals(list.size(), result.getContent().size());
     }
 }

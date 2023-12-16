@@ -1,10 +1,11 @@
 package com.ada.recipes.controller.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@Getter
+@Getter @Setter
 public class RecipeRequest {
     private String description;
     private Integer recipeCategoryId;

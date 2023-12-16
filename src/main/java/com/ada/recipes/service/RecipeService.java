@@ -1,6 +1,7 @@
 package com.ada.recipes.service;
 
 import com.ada.recipes.controller.dto.*;
+import com.ada.recipes.controller.exception.InvalidRecipeItemsListExeption;
 import com.ada.recipes.model.*;
 import com.ada.recipes.repository.*;
 import com.ada.recipes.utils.RecipeConvert;
@@ -32,23 +33,26 @@ public class RecipeService {
     @Autowired
     UserRepository userRepository;
 
-    public RecipeResponse saveRecipe(RecipeRequest recipeRequest){
+    public RecipeResponse saveRecipe(RecipeRequest recipeRequest) throws InvalidRecipeItemsListExeption {
         return saveRecipe(recipeRequest, null);
     }
-    public RecipeResponse saveRecipe(RecipeRequest recipeRequest, Integer id){
+    public RecipeResponse saveRecipe(RecipeRequest recipeRequest, Integer id) throws InvalidRecipeItemsListExeption {
         User user = userRepository.findById(recipeRequest.getUserId())
-            .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
         RecipeCategory category = categoryRepository.findById(recipeRequest.getRecipeCategoryId())
-            .orElseThrow(() -> new NoSuchElementException("Categoria de receita não encontrada"));
+            .orElseThrow(() -> new IllegalArgumentException("Categoria de receita não encontrada"));
+
+        if (recipeRequest.getItems() == null || recipeRequest.getItems().isEmpty())
+            throw new InvalidRecipeItemsListExeption("Lista de itens está vazia");
 
         List<RecipeItem> recipeItemList = new ArrayList<>();
 
         for (RecipeItemRequest itemRequest : recipeRequest.getItems()){
             Ingredient ingredient = ingredientRepository.findById(itemRequest.getIngredientId())
-                    .orElseThrow(() -> new NoSuchElementException("Ingrediente não encontrado"));
+                    .orElseThrow(() -> new IllegalArgumentException("Ingrediente não encontrado"));
             MeasuringUnit measuringUnit = measuringUnitRepository.findById(itemRequest.getMeasuringUnitId())
-                    .orElseThrow(() -> new NoSuchElementException("Unidade de medida não encontrada"));
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade de medida não encontrada"));
             RecipeItem recipeItem = RecipeItemConvert.toEntity(itemRequest, ingredient, measuringUnit);
 
             recipeItemList.add(recipeItem);
@@ -57,7 +61,7 @@ public class RecipeService {
         Recipe recipe = RecipeConvert.toEntity(recipeRequest, user, category, recipeItemList);
         recipe.setId(id);
         recipe.setActive(true);
-        recipeRepository.save(recipe);
+        recipe = recipeRepository.save(recipe);
 
         for (RecipeItem item : recipe.getItems()){
             item.setRecipe(recipe);
@@ -73,7 +77,8 @@ public class RecipeService {
     }
 
     public RecipeResponse getRecipeById(Integer id){
-        return RecipeConvert.toResponse(recipeRepository.findById(id).orElseThrow());
+        return RecipeConvert.toResponse(recipeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Receita não encontrada")));
     }
 
     public Page<RecipeResponse> getRecipeByCategory(Integer id, int page, int size, String direction){

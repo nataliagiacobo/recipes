@@ -26,18 +26,6 @@ public class RecipeConvert {
         return recipe;
     }
 
-    public static Recipe toEntity(RecipeRequest recipeRequest, List<RecipeItem> items, User user, RecipeCategory recipeCategory){
-        Recipe recipe = new Recipe();
-        recipe.setDescription(recipeRequest.getDescription());
-        recipe.setCategory(recipeCategory);
-        recipe.setPreparationTimeMin(recipeRequest.getPreparationTimeMin());
-        recipe.setItems(items);
-        recipe.setPreparationSteps(recipeRequest.getPreparationSteps());
-        recipe.setUser(user);
-        recipe.setActive(true);
-        return recipe;
-    }
-
     public static RecipeResponse toResponse(Recipe recipe){
         RecipeResponse recipeResponse = new RecipeResponse();
         recipeResponse.setId(recipe.getId());

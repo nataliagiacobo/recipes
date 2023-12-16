@@ -9,11 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -62,5 +68,25 @@ public class RecipeCategoryServiceTest {
         Assertions.assertThrows(NoSuchElementException.class,
                 () -> service.getRecipeCategoryById(1)
         );
+    }
+
+    @Test
+    public void list_of_categories_should_return_with_all_itens(){
+        int page = 0;
+        int size = 10;
+        String direction = "ASC";
+
+        List<RecipeCategory> list = new ArrayList<>();
+        list.add(new RecipeCategory(1, "Bolos"));
+        list.add(new RecipeCategory(2, "Biscoitos"));
+
+        Page<RecipeCategory> categoryPage = new PageImpl<>(list);
+
+        when(repository.findAll(any(Pageable.class))).thenReturn(categoryPage);
+
+        Page<RecipeCategoryResponse> result = service.getRecipeCategories(page, size, direction);
+
+        assertNotNull(result);
+        assertEquals(list.size(), result.getContent().size());
     }
 }

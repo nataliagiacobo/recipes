@@ -9,11 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -62,6 +68,26 @@ public class IngredientServiceTest {
         Assertions.assertThrows(NoSuchElementException.class,
                 () -> service.getIngredientById(1)
         );
+    }
+
+    @Test
+    public void list_of_ingredients_should_return_with_all_itens(){
+        int page = 0;
+        int size = 10;
+        String direction = "ASC";
+
+        List<Ingredient> ingredients = new ArrayList<>();
+        ingredients.add(new Ingredient(1, "Ovo"));
+        ingredients.add(new Ingredient(2, "Farinha de Trigo"));
+
+        Page<Ingredient> ingredientPage = new PageImpl<>(ingredients);
+
+        when(repository.findAll(any(Pageable.class))).thenReturn(ingredientPage);
+
+        Page<IngredientResponse> result = service.getIngredients(page, size, direction);
+
+        assertNotNull(result);
+        assertEquals(ingredients.size(), result.getContent().size());
     }
 
 }
